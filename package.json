@@ -3,15 +3,19 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "gen:client": "spacetime generate --lang typescript --out-dir ../open-empires-api-bindings/src/_generated",
-    "build": "spacetime build",
+    "gen:client": "rm -rf ./dist/_generated && spacetime generate --lang typescript --module-path . --out-dir ./dist/_generated",
+    "build": "bun --sequential build:spacetime gen:client",
+    "build:spacetime": "spacetime build",
     "publish:prod": "spacetime publish open-empires",
     "publish:dev": "spacetime publish open-empires-dev"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "dependencies": {
-    "spacetimedb": "^1.12.0"
+  "peerDependencies": {
+    "spacetimedb": "2.0.0-rc1"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
   }
 }
