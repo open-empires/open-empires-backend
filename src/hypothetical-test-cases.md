@@ -34,6 +34,7 @@ a stat of a target unit via some stat from the source unit. The action ceases wh
 - passive feitoria: gains resources
 - passive garrisoned unit: heals
 - passive unit training progresses
+- house deleted, user loses pop capacity
 
 ## Not Covered Cases
 - technologies (in general it'll just multiply unit properties)

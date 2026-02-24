@@ -8,11 +8,11 @@ const spacetimedb = schema({
       createdAt: t.timestamp(),
       identity: t.identity().unique(),
       discordId: t.option(t.string()),
+      // TODO: preferences including hotkeys
       prefersDarkMode: t.bool(),
       gridColor: t.string()
     },
   ),
-  // TODO: user hotkeys preference
   // TODO: maybe have all users get a "mod" by default so they can customize things.
   // PERSISTENT WORLD
   mapInstances: table(
@@ -21,6 +21,8 @@ const spacetimedb = schema({
       id: t.u64().primaryKey().autoInc(),
       createdAt: t.timestamp(),
       datasetId: t.u64().index(),
+      // Long-term the goal is to get this to 500
+      empireLimit: t.u32(),
       width: t.u64(),
       height: t.u64(), // this is in increments. 32 increments per tile edge
     },
@@ -34,8 +36,30 @@ const spacetimedb = schema({
       y: t.u64(),
       terrainId: t.u64().index(),
       // TODO: right now we're using variants to model corner pieces, but this needs
-      // to be generic in such a way that it can be encoded in the dataset
+      // to be generic in such a way that it can be encoded in the dataset so the map
+      // can be generated procedurally
       terrainVariant: t.u8()
+    }
+  ),
+  empires: table(
+    { name: "empires", public: true },
+    {
+      id: t.u64().primaryKey().autoInc(),
+      mapInstanceId: t.u64().index(),
+      name: t.string(),
+      civilization: t.u64().index(),
+      // An empire's stockpile is actually a unit.
+      // The unit has resource stats and perhaps handicap multipliers.
+      stockpileUnitInstanceId: t.u64().index()
+    }
+  ),
+  // co-op support by making user to empire many to many
+  players: table(
+    { name: "players", public: true},
+    {
+      id: t.u64().primaryKey().autoInc(),
+      empireId: t.u64().index(),
+      userId: t.u64().index()
     }
   ),
   unitInstances: table(
@@ -44,7 +68,7 @@ const spacetimedb = schema({
       id: t.u64().primaryKey().autoInc(),
       createdAt: t.timestamp(),
       mapInstanceId: t.u64().index(),
-      userId: t.u64().index(),
+      empireId: t.u64().index(),
       unitId: t.u64().index(),
       x: t.u64(),
       y: t.u64(),
@@ -54,57 +78,32 @@ const spacetimedb = schema({
       gatherY: t.u64()
     },
   ),
-  unitProperties: table(
-    {name: "unit_properties", public: true},
+  unitPropertyInstances: table(
+    { name: "unit_property_instances", public: true },
     {
       id: t.u64().primaryKey().autoInc(),
-      unitId: t.u64().index(),
-      unitPropertyMetadataId: t.u64().index(),
+      unitInstanceId: t.u64().index(),
+      unitPropertyId: t.u64().index(),
       // Controls max garrison, heal limit, max resources, etc.
       maxValue: t.u32(),
       value: t.u32()
-    }
-  ),
-  projectile: table(
-    {name: "projectile", public: true},
-    {
-      id: t.u64().primaryKey().autoInc(),
-      createdAt: t.timestamp(),
-      worldId: t.u64().index(),
-      splashRadius: t.u32(),
-      sourceCoordinateId: t.u64().index(),
-      targetCoordinateId: t.u64().index(),
-      plannedDuration: t.u32(),
-      // for arcing arrows 
-      plannedHeight: t.u32(),
-      directionalSpritePathId: t.u64().index()
     }
   ),
   // Moving to locations, completing tasks.
   // Game engine is in charge of adding new movement nodes
   // For cases where unit needs to travel before task is possible.
   actionSequenceNodes: table(
-    {name: "task_sequence_nodes", public: true},
+    {name: "action_sequence_nodes", public: true},
     {
       id: t.u64().primaryKey().autoInc(),
       createdAt: t.timestamp(),
-      worldId: t.u64().index(),
-      unitId: t.u64().index(),
+      mapInstanceId: t.u64().index(),
+      unitInstanceId: t.u64().index(),
+      // When 0, it's the current action
       priorActionSequenceNodeId: t.u64().index(),
-      intendedActionMetadataId: t.u64().index(),
+      actionId: t.u64().index(),
       fromX: t.u64(),
       fromY: t.u64(),
-      
-    }
-  ),
-  resourceInstances: table(
-    {name: "resource_instances", public: true},
-    {
-      id: t.u64().index(),
-      mapId: t.u64().index(),
-      resourceId: t.u64().index(),
-      userId: t.u64().index(),
-      value: t.u32()
     }
   ),
   // TODO: active technologies
@@ -118,7 +117,6 @@ const spacetimedb = schema({
       packageName: t.string(),
       packageVersion: t.string(),
       // General icons
-      populationIconSpritePath: t.string(),
       techTreeIconSpritePath: t.string(),
       chatIconSpritePath: t.string(),
       diplomacyIconSpritePath: t.string(),
@@ -128,11 +126,11 @@ const spacetimedb = schema({
       goToLocationSpritePath: t.string(),
     },
   ),
-  directionalSpritePath: table(
-    {name: "directional_sprite_path", public: true},
+  directionalSpritePaths: table(
+    {name: "directional_sprite_paths", public: true},
     {
       id: t.u64().primaryKey().autoInc(),
-      metadataSetId: t.u64().index(),
+      datasetId: t.u64().index(),
       leftSpritePath: t.string(),
       leftUpSpritePath: t.string(),
       upSpritePath: t.string(),
@@ -143,16 +141,16 @@ const spacetimedb = schema({
       leftDownSpritePath: t.string()
     }
   ),
-  unitCategory: table(
-    {name: "unit_category", public: true},
+  unitCategories: table(
+    {name: "unit_categories", public: true},
     {
       id: t.u64().primaryKey().autoInc(),
       metadataSetId: t.u64().index(),
       name: t.string()
     }
   ),
-  unitPropertyMetadata: table(
-    {name: "unit_property_metadata", public: true},
+  unitProperties: table(
+    {name: "unit_properties", public: true},
     {
       id: t.u64().primaryKey().autoInc(),
       metadataSetId: t.u64().index(),
@@ -301,32 +299,28 @@ export const init = spacetimedb.init({ name: "init" }, (_ctx) => {
 });
 
 export const onConnect = spacetimedb.clientConnected({ name: "on_connect" }, (ctx) => {
-  const existingPlayer = ctx.db.user.identity.find(ctx.sender);
+  const existingPlayer = ctx.db.users.identity.find(ctx.sender);
   if (existingPlayer) {
     return;
   }
-  const user = ctx.db.user.insert({
+  const user = ctx.db.users.insert({
     id: AUTO_INC_ID,
     identity: ctx.sender,
     discordId: undefined,
     createdAt: ctx.timestamp,
+    // TODO: get from context
+    prefersDarkMode: true,
+    gridColor: "#000000"
   });
   // For now everyone is placed into the same map
-  const world = ctx.db.world.id.find(1n);
-  if (!world) {
+  const mapInstance = ctx.db.mapInstances.id.find(1n);
+  if (!mapInstance) {
+    // TODO: some kind of error needs to be returned to the end user
     return;
   }
 
-  let militiaMetadata: ReturnType<typeof ctx.db.unitMetadata.insert> | undefined;
-  for (const metadata of ctx.db.unitMetadata.iter()) {
-    if (metadata.metadataSetId === world.metadataSetId && metadata.name.toLowerCase() === "militia") {
-      militiaMetadata = metadata;
-      break;
-    }
-  }
-  if (!militiaMetadata) {
-    return;
-  }
+  // TODO create a villager. Create a stockpile.
+  // Only create an empire if 
 
   const walkableTerrainIds = new Set<bigint>();
   for (const walkable of ctx.db.terrainWalkableUnitCategories.iter()) {
@@ -395,155 +389,18 @@ export const onDisconnect = spacetimedb.clientDisconnected({ name: "on_disconnec
   // Called every time a client disconnects
 });
 
-export const add = spacetimedb.reducer({ name: "add" }, { name: t.string() }, (ctx, { name }) => {
-  const player = upsertPlayerDisplayName(ctx, name);
-  const dataset = ensureDefaultDataset(ctx);
-  const map = ensureDefaultMap(ctx, dataset.id);
-  const unitMetadata = ensureDefaultUnitMetadata(ctx, dataset.id);
-  ensureDefaultActionSprites(ctx, unitMetadata.id);
-  ensurePlayerHasStarterUnit(ctx, map.id, player.id, unitMetadata.id);
+export const ingestDataset = spacetimedb.reducer({ name: "add" }, { name: t.string() }, (ctx, { name }) => {
+  
 });
 
-export const sayHello = spacetimedb.reducer({ name: "say_hello" }, (ctx) => {
-  const player = ctx.db.player.identity.find(ctx.sender);
-  const playerLabel = player?.displayName || "anonymous commander";
-  console.info(`Hello, ${playerLabel}!`);
-  console.info(
-    `Maps=${countRows(ctx.db.map.iter())} Players=${countRows(ctx.db.player.iter())} Units=${countRows(ctx.db.unit.iter())}`,
-  );
+export const createEmpire = spacetimedb.reducer({name: "create_empire"}, {name: t.string(), mapInstanceId: t.u64() }, (ctx, {name}) => {
+  // TODO: create empire with current user only if it's below the empire limit.
+  //       we'll spawn a villager and a scout cavalry
 });
 
-function upsertPlayerDisplayName(ctx: Parameters<typeof add>[0], displayName: string) {
-  const existing = ctx.db.player.identity.find(ctx.sender);
-  if (!existing) {
-    return ctx.db.player.insert({
-      id: AUTO_INC_ID,
-      identity: ctx.sender,
-      displayName,
-      createdAt: ctx.timestamp,
-    });
-  }
+export const enqueueAction = spacetimedb.reducer({name: "enqueue_action"}, {actionId: t.u64(), sourceUnitId: t.u64(), targetUnitId: t.u64(), clearActionBacklog: t.bool()}, (ctx, props) => {
+  
+});
 
-  return ctx.db.player.id.update({
-    ...existing,
-    displayName,
-  });
-}
-
-function ensureDefaultDataset(ctx: Parameters<typeof add>[0]) {
-  const existing = ctx.db.dataset.name.find("default");
-  if (existing) {
-    return existing;
-  }
-
-  return ctx.db.dataset.insert({
-    id: AUTO_INC_ID,
-    name: "default",
-    createdAt: ctx.timestamp,
-  });
-}
-
-function ensureDefaultMap(ctx: Parameters<typeof add>[0], datasetId: bigint) {
-  const existing = ctx.db.map.name.find("arena");
-  if (existing) {
-    return existing;
-  }
-
-  return ctx.db.map.insert({
-    id: AUTO_INC_ID,
-    datasetId,
-    name: "arena",
-    width: 128,
-    height: 128,
-    createdAt: ctx.timestamp,
-  });
-}
-
-function ensureDefaultUnitMetadata(ctx: Parameters<typeof add>[0], datasetId: bigint) {
-  const existing = ctx.db.unitMetadata.code.find("militia");
-  if (existing) {
-    return existing;
-  }
-
-  return ctx.db.unitMetadata.insert({
-    id: AUTO_INC_ID,
-    datasetId,
-    code: "militia",
-    name: "Militia",
-    attack: 4,
-    movementSpeed: 1.1,
-    attackSpeed: 1.6,
-    startingHp: 40,
-    meleeArmor: 0,
-    pierceArmor: 0,
-    possibleActions: ["idle", "walk", "attack", "die"],
-  });
-}
-
-function ensureDefaultActionSprites(ctx: Parameters<typeof add>[0], unitMetadataId: bigint): void {
-  const directions = ["n", "ne", "e", "se", "s", "sw", "w", "nw"];
-  const actions = ["idle", "walk", "attack", "die"];
-  for (const action of actions) {
-    for (const direction of directions) {
-      const alreadyExists = hasActionSprite(ctx, unitMetadataId, action, direction);
-      if (alreadyExists) {
-        continue;
-      }
-
-      ctx.db.unitMetadataActionSprite.insert({
-        id: AUTO_INC_ID,
-        unitMetadataId,
-        action,
-        direction,
-        spriteKey: `militia/${action}/${direction}`,
-      });
-    }
-  }
-}
-
-function ensurePlayerHasStarterUnit(
-  ctx: Parameters<typeof add>[0],
-  mapId: bigint,
-  ownerPlayerId: bigint,
-  unitMetadataId: bigint,
-): void {
-  for (const unit of ctx.db.unit.iter()) {
-    if (unit.mapId === mapId && unit.ownerPlayerId === ownerPlayerId) {
-      return;
-    }
-  }
-
-  ctx.db.unit.insert({
-    id: AUTO_INC_ID,
-    mapId,
-    ownerPlayerId,
-    unitMetadataId,
-    positionX: 64,
-    positionY: 64,
-    currentHp: 40,
-    currentAction: "idle",
-    facingDirection: "s",
-  });
-}
-
-function hasActionSprite(
-  ctx: Parameters<typeof add>[0],
-  unitMetadataId: bigint,
-  action: string,
-  direction: string,
-): boolean {
-  for (const sprite of ctx.db.unitMetadataActionSprite.iter()) {
-    if (sprite.unitMetadataId === unitMetadataId && sprite.action === action && sprite.direction === direction) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function countRows<T>(iter: Iterable<T>): number {
-  let count = 0;
-  for (const _ of iter) {
-    count += 1;
-  }
-  return count;
-}
+// TODO: should be a scheduled reducer
+export const tick = spacetimedb.reducer({name: "tick"})
