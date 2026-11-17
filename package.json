@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "gen:client": "rm -rf ./dist/_generated && spacetime generate --lang typescript --module-path . --out-dir ./dist/_generated",
+    "gen:dataset-schema": "bun -e 'import { DatasetDefinitionJsonSchema } from \"./src/dataset-definition\"; console.log(JSON.stringify(DatasetDefinitionJsonSchema, null, 2));' > dataset.schema.json",
     "build": "bun --sequential build:spacetime gen:client",
     "build:spacetime": "spacetime build",
     "publish:prod": "spacetime publish open-empires",
@@ -17,5 +18,8 @@
   },
   "devDependencies": {
     "typescript": "5.9.3"
+  },
+  "dependencies": {
+    "effect": "^3.19.19"
   }
 }

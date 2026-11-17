@@ -1,0 +1,760 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "OpenEmpiresDatasetDefinition": {
+      "type": "object",
+      "required": [
+        "icons"
+      ],
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "icons": {
+          "type": "object",
+          "required": [
+            "techTreeIconSpritePath",
+            "chatIconSpritePath",
+            "diplomacyIconSpritePath",
+            "settingsIconSpritePath",
+            "standardCursorSpritePath",
+            "goToLocationSpritePath"
+          ],
+          "properties": {
+            "techTreeIconSpritePath": {
+              "type": "string"
+            },
+            "chatIconSpritePath": {
+              "type": "string"
+            },
+            "diplomacyIconSpritePath": {
+              "type": "string"
+            },
+            "settingsIconSpritePath": {
+              "type": "string"
+            },
+            "standardCursorSpritePath": {
+              "type": "string"
+            },
+            "goToLocationSpritePath": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "directionalSpritePaths": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "code",
+              "leftSpritePath",
+              "leftUpSpritePath",
+              "upSpritePath",
+              "rightUpSpritePath",
+              "rightSpritePath",
+              "rightDownSpritePath",
+              "downSpritePath",
+              "leftDownSpritePath"
+            ],
+            "properties": {
+              "code": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "leftSpritePath": {
+                "type": "string"
+              },
+              "leftUpSpritePath": {
+                "type": "string"
+              },
+              "upSpritePath": {
+                "type": "string"
+              },
+              "rightUpSpritePath": {
+                "type": "string"
+              },
+              "rightSpritePath": {
+                "type": "string"
+              },
+              "rightDownSpritePath": {
+                "type": "string"
+              },
+              "downSpritePath": {
+                "type": "string"
+              },
+              "leftDownSpritePath": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "unitCategories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "code",
+              "name"
+            ],
+            "properties": {
+              "code": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "name": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "unitProperties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "code",
+              "name"
+            ],
+            "properties": {
+              "code": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "name": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "terrain": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "code",
+              "name",
+              "spritePath"
+            ],
+            "properties": {
+              "code": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "name": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "spritePath": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "terrainWalkableUnitCategories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "terrainCode",
+              "unitCategoryCode"
+            ],
+            "properties": {
+              "terrainCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "unitCategoryCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "code",
+              "name",
+              "iconSpritePath"
+            ],
+            "properties": {
+              "code": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "name": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "iconSpritePath": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "units": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "code",
+              "unitCategoryCode",
+              "iconSpritePath",
+              "length",
+              "height",
+              "name",
+              "selectSoundPath",
+              "selectable",
+              "walkable",
+              "blockable",
+              "deathByZero",
+              "tiled"
+            ],
+            "properties": {
+              "code": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "unitCategoryCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "iconSpritePath": {
+                "type": "string"
+              },
+              "length": {
+                "$ref": "#/$defs/Int",
+                "description": "a positive number",
+                "title": "greaterThan(0)",
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "exclusiveMinimum": 0
+              },
+              "height": {
+                "$ref": "#/$defs/Int",
+                "description": "a positive number",
+                "title": "greaterThan(0)",
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "exclusiveMinimum": 0
+              },
+              "name": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "selectSoundPath": {
+                "type": "string"
+              },
+              "selectable": {
+                "type": "boolean"
+              },
+              "deathByUnitPropertyCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "walkable": {
+                "type": "boolean"
+              },
+              "blockable": {
+                "type": "boolean"
+              },
+              "hoverHeight": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/Int",
+                    "description": "a number between 0 and 9007199254740991",
+                    "title": "between(0, 9007199254740991)",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                ],
+                "title": "between(0, 9007199254740991)",
+                "description": "a number between 0 and 9007199254740991"
+              },
+              "ascentAcceleration": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/Int",
+                    "description": "a number between 0 and 9007199254740991",
+                    "title": "between(0, 9007199254740991)",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                ],
+                "title": "between(0, 9007199254740991)",
+                "description": "a number between 0 and 9007199254740991"
+              },
+              "descentAcceleration": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/Int",
+                    "description": "a number between 0 and 9007199254740991",
+                    "title": "between(0, 9007199254740991)",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                ],
+                "title": "between(0, 9007199254740991)",
+                "description": "a number between 0 and 9007199254740991"
+              },
+              "ascentStartSpeed": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/Int",
+                    "description": "a number between 0 and 9007199254740991",
+                    "title": "between(0, 9007199254740991)",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                ],
+                "title": "between(0, 9007199254740991)",
+                "description": "a number between 0 and 9007199254740991"
+              },
+              "descentStartSpeed": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/Int",
+                    "description": "a number between 0 and 9007199254740991",
+                    "title": "between(0, 9007199254740991)",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                ],
+                "title": "between(0, 9007199254740991)",
+                "description": "a number between 0 and 9007199254740991"
+              },
+              "deathByZero": {
+                "type": "boolean"
+              },
+              "tiled": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "baseUnitProperties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "unitCode",
+              "unitPropertyCode",
+              "value"
+            ],
+            "properties": {
+              "unitCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "unitPropertyCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "value": {
+                "$ref": "#/$defs/Int",
+                "description": "a number between 0 and 4294967295",
+                "title": "between(0, 4294967295)",
+                "minimum": 0,
+                "maximum": 4294967295
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "code",
+              "sourceUnitCode",
+              "repeats",
+              "name"
+            ],
+            "properties": {
+              "code": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "sourceUnitCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "targetUnitCategoryCodes": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/NonEmptyTrimmedString"
+                }
+              },
+              "taskSoundPath": {
+                "type": "string"
+              },
+              "activeSoundPath": {
+                "type": "string"
+              },
+              "cursorSpritePath": {
+                "type": "string"
+              },
+              "repeats": {
+                "type": "boolean"
+              },
+              "missChance": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/Int",
+                    "description": "a number between 0 and 4294967295",
+                    "title": "between(0, 4294967295)",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                ],
+                "title": "between(0, 4294967295)",
+                "description": "a number between 0 and 4294967295"
+              },
+              "speedUnitPropertyCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "minimumRangeUnitPropertyCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "maximumRangeUnitPropertyCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "rechargeTime": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/Int",
+                    "description": "a number between 0 and 4294967295",
+                    "title": "between(0, 4294967295)",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  }
+                ],
+                "title": "between(0, 4294967295)",
+                "description": "a number between 0 and 4294967295"
+              },
+              "name": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "actionEffects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "actionCode"
+            ],
+            "properties": {
+              "actionCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "splashRadius": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/Int",
+                    "description": "a number between 0 and 9007199254740991",
+                    "title": "between(0, 9007199254740991)",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                ],
+                "title": "between(0, 9007199254740991)",
+                "description": "a number between 0 and 9007199254740991"
+              },
+              "friendlyFire": {
+                "type": "boolean"
+              },
+              "impactsOthers": {
+                "type": "boolean"
+              },
+              "sourceGarrisons": {
+                "type": "boolean"
+              },
+              "targetGarrisons": {
+                "type": "boolean"
+              },
+              "sourceUngarrisons": {
+                "type": "boolean"
+              },
+              "targetUngarrisons": {
+                "type": "boolean"
+              },
+              "sourceUnitPropertyCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "targetUnitPropertyCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "targetUnitPropertyDirection": {
+                "type": "string",
+                "enum": [
+                  "add",
+                  "sub",
+                  "set"
+                ]
+              },
+              "targetDefensePropertyCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "targetConverts": {
+                "type": "boolean"
+              },
+              "spawnProjectileUnitCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "actionSprites": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "actionCode",
+              "unitPropertyCode",
+              "directionalSpritePathCode"
+            ],
+            "properties": {
+              "actionCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "unitPropertyCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "unitPropertyValueBelowOrEq": {
+                "$ref": "#/$defs/Int",
+                "description": "a number between 0 and 4294967295",
+                "title": "between(0, 4294967295)",
+                "minimum": 0,
+                "maximum": 4294967295
+              },
+              "unitPropertyValueAboveOrEq": {
+                "$ref": "#/$defs/Int",
+                "description": "a number between 0 and 4294967295",
+                "title": "between(0, 4294967295)",
+                "minimum": 0,
+                "maximum": 4294967295
+              },
+              "directionalSpritePathCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "unitDeathProgressions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "replaceWithUnitCode"
+            ],
+            "properties": {
+              "sourceActionCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "replaceWithUnitCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "maps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "code",
+              "name",
+              "width",
+              "height",
+              "empireLimit"
+            ],
+            "properties": {
+              "code": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "name": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "width": {
+                "$ref": "#/$defs/Int",
+                "description": "a positive number",
+                "title": "greaterThan(0)",
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "exclusiveMinimum": 0
+              },
+              "height": {
+                "$ref": "#/$defs/Int",
+                "description": "a positive number",
+                "title": "greaterThan(0)",
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "exclusiveMinimum": 0
+              },
+              "empireLimit": {
+                "$ref": "#/$defs/Int",
+                "description": "a positive number",
+                "title": "greaterThan(0)",
+                "minimum": 0,
+                "maximum": 4294967295,
+                "exclusiveMinimum": 0
+              },
+              "terrainSeed": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/Int",
+                    "description": "a number between 0 and 9007199254740991",
+                    "title": "between(0, 9007199254740991)",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                ],
+                "title": "between(0, 9007199254740991)",
+                "description": "a number between 0 and 9007199254740991"
+              },
+              "terrainWeights": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "terrainCode",
+                    "weight"
+                  ],
+                  "properties": {
+                    "terrainCode": {
+                      "$ref": "#/$defs/NonEmptyTrimmedString"
+                    },
+                    "weight": {
+                      "$ref": "#/$defs/Int",
+                      "description": "a positive number",
+                      "title": "greaterThan(0)",
+                      "minimum": 0,
+                      "maximum": 4294967295,
+                      "exclusiveMinimum": 0
+                    },
+                    "isWater": {
+                      "type": "boolean"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "spawnUnits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "unitCode",
+                    "count",
+                    "radius"
+                  ],
+                  "properties": {
+                    "unitCode": {
+                      "$ref": "#/$defs/NonEmptyTrimmedString"
+                    },
+                    "count": {
+                      "$ref": "#/$defs/Int",
+                      "description": "a positive number",
+                      "title": "greaterThan(0)",
+                      "minimum": 0,
+                      "maximum": 4294967295,
+                      "exclusiveMinimum": 0
+                    },
+                    "radius": {
+                      "$ref": "#/$defs/Int",
+                      "description": "a number between 0 and 9007199254740991",
+                      "title": "between(0, 9007199254740991)",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "nature": {
+                      "type": "boolean"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "terrainDominanceOrders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "terrainCode",
+              "dominanceOrder"
+            ],
+            "properties": {
+              "terrainCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "dominanceOrder": {
+                "$ref": "#/$defs/Int",
+                "description": "a number between 0 and 4294967295",
+                "title": "between(0, 4294967295)",
+                "minimum": 0,
+                "maximum": 4294967295
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "terrainTransitionVariants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "recessiveTerrainCode",
+              "dominantTerrainCode",
+              "edgeMask",
+              "terrainVariant"
+            ],
+            "properties": {
+              "recessiveTerrainCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "dominantTerrainCode": {
+                "$ref": "#/$defs/NonEmptyTrimmedString"
+              },
+              "edgeMask": {
+                "$ref": "#/$defs/Int",
+                "description": "a number between 0 and 255",
+                "title": "between(0, 255)",
+                "minimum": 0,
+                "maximum": 255
+              },
+              "terrainVariant": {
+                "$ref": "#/$defs/Int",
+                "description": "a number between 0 and 255",
+                "title": "between(0, 255)",
+                "minimum": 0,
+                "maximum": 255
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false,
+      "description": "Source-of-truth dataset definition used to normalize all datasetId-backed metadata tables.",
+      "title": "Open Empires Dataset Definition",
+      "$id": "https://open-empires.dev/schemas/dataset.schema.json"
+    },
+    "NonEmptyTrimmedString": {
+      "type": "string",
+      "description": "a non empty string",
+      "title": "nonEmptyString",
+      "pattern": "^\\S[\\s\\S]*\\S$|^\\S$|^$",
+      "minLength": 1
+    },
+    "Int": {
+      "type": "integer",
+      "description": "an integer",
+      "title": "int"
+    }
+  },
+  "$ref": "#/$defs/OpenEmpiresDatasetDefinition",
+  "$id": "https://open-empires.dev/schemas/dataset.schema.json"
+}
